@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+                android:id="@+id/nav_overview"
+                android:icon="@drawable/overview"
+                android:title="Přehled"/>
+        <item
+                android:id="@+id/nav_plant1"
+                android:icon="@drawable/plant"
+                android:title="Rostlina 1"/>
+        <item
+                android:id="@+id/nav_plant2"
+                android:icon="@drawable/plant"
+                android:title="Rostlina 2"/>
+        <item
+                android:id="@+id/nav_plant3"
+                android:icon="@drawable/plant"
+                android:title="Rostlina 3"/>
+        <item
+                android:id="@+id/nav_plant4"
+                android:icon="@drawable/plant"
+                android:title="Rostlina 4"/>
+    </group>
+
+</menu>
