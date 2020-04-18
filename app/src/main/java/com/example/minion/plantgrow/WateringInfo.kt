@@ -96,10 +96,10 @@ class WateringMainInfo private constructor() {
     }
 
     fun getWateringState(potIndex: Int, dayIndex: Int) =
-        listOfWateringInfo[potIndex - 1].getDayWateringState(dayIndex)
+        listOfWateringInfo[potIndex].getDayWateringState(dayIndex)
 
     fun setWateringState(potIndex: Int, dayIndex: Int, value: Boolean) {
-        listOfWateringInfo[potIndex - 1].setDayWateringState(dayIndex, value)
+        listOfWateringInfo[potIndex ].setDayWateringState(dayIndex, value)
     }
     fun getWaterVolume(potIndex: Int) = listOfWateringInfo.get(potIndex-1).getLitres()
     fun setWaterVolume(potIndex: Int, waterVolume:Long){

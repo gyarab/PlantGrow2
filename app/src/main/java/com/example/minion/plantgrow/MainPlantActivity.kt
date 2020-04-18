@@ -164,6 +164,12 @@ class MainPlantActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         linearLayout.y = hegiht / 6 + hegiht/6*index.toFloat()
         return linearLayout
-
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        BluetoothCommunication.getInstance().closeCommunication()
+    }
+
+
 }

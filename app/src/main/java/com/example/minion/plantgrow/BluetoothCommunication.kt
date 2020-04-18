@@ -94,7 +94,9 @@ class BluetoothCommunication private constructor() {
         return 0
     }
 
-
+    fun closeCommunication(){
+        bluetoothSocket.close()
+    }
 
 }
 

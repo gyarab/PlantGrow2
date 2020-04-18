@@ -1,5 +1,6 @@
 package com.example.minion.plantgrow
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.GradientDrawable
@@ -55,6 +56,7 @@ class AutoLedActivity : AppCompatActivity() {
         mainLayout.addView(dayInTheWeek)
         mainLayout.addView(createLedLayout(dayIndex, false))
         mainLayout.addView(createLedLayout(dayIndex, true))
+        mainLayout.addView(createSettingsButton(dayString, dayIndex))
         return mainLayout
 
 
@@ -118,13 +120,36 @@ class AutoLedActivity : AppCompatActivity() {
         root.addView(switch)
         return root
     }
+    private fun createSettingsButton(dayOfWeek: String, dayIndex: Int):RelativeLayout{
+        var relativeLayout = RelativeLayout(applicationContext)
+        relativeLayout.gravity = Gravity.CENTER
+        var button = Button(applicationContext)
+        var drawable = GradientDrawable()
+        drawable.setColor(Color.DKGRAY)
+        drawable.cornerRadius = 25f
+        drawable.setStroke(3, Color.WHITE)
+        button.background = drawable
+        button.gravity = Gravity.CENTER
+        button.text = "Upravit"
+        button.width = width/4
+        button.setTextColor(Color.WHITE)
+        button.textSize = 18F
+        button.setOnClickListener {
+        var intent = Intent(applicationContext, PopupWindowActivity::class.java)
+            intent.putExtra("index", index)
+            intent.putExtra("dayIndex", dayIndex)
+            intent.putExtra("dayString", dayOfWeek)
+            startActivity(intent)
+        }
+        relativeLayout.addView(button)
+        return relativeLayout
+    }
     private fun createSpace(height:Int):Space{
         var space = Space(applicationContext)
         space.minimumHeight = height
         space.minimumWidth = width
         return space
     }
-
     override fun onDestroy() {
         super.onDestroy()
         ledMainInfo.save()
