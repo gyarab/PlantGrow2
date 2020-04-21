@@ -169,7 +169,7 @@ data class LedInfo(
         }
         return string
     }
-    fun getRedLedPower(dayIndex: Int) = getRedPercentage(dayIndex)/1000*30
-    fun getBlueLedPower(dayIndex: Int) = getBluePercentage(dayIndex)/1000*35
+    fun getRedLedPower(dayIndex: Int):Float = getRedPercentage(dayIndex).toFloat()/1000F*30F
+    fun getBlueLedPower(dayIndex: Int):Float = getBluePercentage(dayIndex).toFloat()/1000F*35F
 
 }

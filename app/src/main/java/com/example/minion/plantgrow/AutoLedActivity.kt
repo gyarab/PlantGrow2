@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.util.DisplayMetrics
 import android.view.Gravity
@@ -19,6 +20,23 @@ class AutoLedActivity : AppCompatActivity() {
         arrayOf("Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek", "Sobota", "Neděle")
     private lateinit var ledMainInfo: LedMainInfo
     private lateinit var ledInfo: LedInfo
+    private var powerTextViews = ArrayList<TextView>()
+    private var runnable = object : Runnable {
+        override fun run() {
+            var textViewIndex = 0
+            ledInfo = LedMainInfo.getInstance().getLedInfo(index)
+
+            for (index in 0..6) {
+                powerTextViews[textViewIndex].text =
+                    "Výkon: ${ledInfo.getRedLedPower(index)}W"
+                powerTextViews[textViewIndex + 1].text =
+                    "Výkon: ${ledInfo.getBlueLedPower(index)}W"
+                textViewIndex += 2
+            }
+
+            Handler().postDelayed(this, 20)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,15 +50,16 @@ class AutoLedActivity : AppCompatActivity() {
         index = intent.getIntExtra("index", 0)
         ledMainInfo = LedMainInfo.getInstance()
         ledInfo = ledMainInfo.getLedInfo(index)
-        for (i in 0..6){
+        for (i in 0..6) {
             rootLayout.addView(createDayLayout(daysInWeek[i], i))
             rootLayout.addView(createSpace(50))
         }
 
+        Handler().post(runnable)
 
     }
 
-    private fun createDayLayout(dayString: String, dayIndex: Int):LinearLayout {
+    private fun createDayLayout(dayString: String, dayIndex: Int): LinearLayout {
         var mainLayout = LinearLayout(applicationContext)
         mainLayout.gravity = Gravity.CENTER_VERTICAL
         mainLayout.orientation = LinearLayout.VERTICAL
@@ -71,6 +90,7 @@ class AutoLedActivity : AppCompatActivity() {
         return textView
     }
 
+
     private fun createLedLayout(dayIndex: Int, isBlue: Boolean): RelativeLayout {
         var root = RelativeLayout(applicationContext)
         var led = if (isBlue) createTextView("Modrá LED: ") else createTextView("Červená LED: ")
@@ -80,7 +100,7 @@ class AutoLedActivity : AppCompatActivity() {
         var statusText = TextView(applicationContext)
         statusText = if (isBlue) {
             createTextView(if (ledInfo.getBlueState(dayIndex)) "on" else "off")
-        }else{
+        } else {
             createTextView(if (ledInfo.getRedState(dayIndex)) "on" else "off")
         }
 
@@ -102,16 +122,19 @@ class AutoLedActivity : AppCompatActivity() {
                 powerText.paintFlags = powerText.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 statusText.text = "off"
             }
-            if (isBlue){
+            if (isBlue) {
                 ledInfo.setBlueState(dayIndex, isChecked)
-            }else{
+            } else {
                 ledInfo.setRedState(dayIndex, isChecked)
             }
         }
+
+
+        powerTextViews.add(powerText)
         led.x = 50F
-        statusText.x = 2*width/5F
-        powerText.x = width/2F
-        switch.x = 4*width/5F
+        statusText.x = 2 * width / 6F +50
+        powerText.x = width / 2F
+        switch.x = 5 * width / 6F
 
 
         root.addView(led)
@@ -120,7 +143,8 @@ class AutoLedActivity : AppCompatActivity() {
         root.addView(switch)
         return root
     }
-    private fun createSettingsButton(dayOfWeek: String, dayIndex: Int):RelativeLayout{
+
+    private fun createSettingsButton(dayOfWeek: String, dayIndex: Int): RelativeLayout {
         var relativeLayout = RelativeLayout(applicationContext)
         relativeLayout.gravity = Gravity.CENTER
         var button = Button(applicationContext)
@@ -131,11 +155,11 @@ class AutoLedActivity : AppCompatActivity() {
         button.background = drawable
         button.gravity = Gravity.CENTER
         button.text = "Upravit"
-        button.width = width/4
+        button.width = width / 4
         button.setTextColor(Color.WHITE)
         button.textSize = 18F
         button.setOnClickListener {
-        var intent = Intent(applicationContext, PopupWindowActivity::class.java)
+            var intent = Intent(applicationContext, PopupWindowActivity::class.java)
             intent.putExtra("index", index)
             intent.putExtra("dayIndex", dayIndex)
             intent.putExtra("dayString", dayOfWeek)
@@ -144,12 +168,15 @@ class AutoLedActivity : AppCompatActivity() {
         relativeLayout.addView(button)
         return relativeLayout
     }
-    private fun createSpace(height:Int):Space{
+
+    private fun createSpace(height: Int): Space {
         var space = Space(applicationContext)
         space.minimumHeight = height
         space.minimumWidth = width
         return space
     }
+
+
     override fun onDestroy() {
         super.onDestroy()
         ledMainInfo.save()
