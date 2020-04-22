@@ -1,22 +1,29 @@
 package com.example.minion.plantgrow
 
+import android.util.Log
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.util.*
 import kotlin.collections.ArrayList
 
-class LedMainInfo private constructor(){
+class LedMainInfo private constructor() {
     private val listOfLedInfo = ArrayList<LedInfo>(4)
+    private val listOfTimeInfo = ArrayList<LedInfoTime>(4)
 
     companion object {
         private var ledMainInfo: LedMainInfo? = null
         private lateinit var file: File
+        private lateinit var timeFile: File
+
+
         fun getInstance(): LedMainInfo {
             if (ledMainInfo == null) {
                 ledMainInfo = LedMainInfo()
                 initFile()
+                initTimeFile()
                 readFile()
+                readTimeFile()
             }
             return ledMainInfo!!
         }
@@ -78,7 +85,36 @@ class LedMainInfo private constructor(){
 
         fun setPath(pth: String) {
             file = File("$pth/led.txt")
+            timeFile = File("$pth/time.txt")
         }
+
+        private fun initTimeFile() {
+            if (timeFile.exists()) {
+                return
+            }
+            timeFile.createNewFile()
+            var bfw = BufferedWriter(FileWriter(timeFile))
+            for (i in 0..3) {
+                bfw.write("0;0;0;0;0;0;0;")
+                bfw.newLine()
+            }
+            bfw.close()
+        }
+
+        private fun readTimeFile() {
+            var sc = Scanner(timeFile)
+            for (i in 0..3) {
+                ledMainInfo!!.listOfTimeInfo.add(LedInfoTime())
+                var arr = parseLedPower(sc)
+                for (j in 0..6) {
+                    ledMainInfo!!.listOfTimeInfo[i].addTimeFromMinutes(arr[j].toInt())
+                    Log.i("App", "$j")
+                }
+            }
+            sc.close()
+        }
+
+
     }
 
     fun save() {
@@ -98,10 +134,26 @@ class LedMainInfo private constructor(){
             bfw.newLine()
         }
         bfw.close()
+        saveLedTime()
     }
 
-    fun getLedInfo(potIndex:Int) = listOfLedInfo[potIndex]
+    private fun saveLedTime() {
+        if (timeFile.exists()) {
+            file.delete()
+        }
+        var bfw = BufferedWriter(FileWriter(timeFile))
+        for (timeInfo in listOfTimeInfo) {
+            for (i in 0..6) {
+                bfw.write("${timeInfo.getTimeInMinutesCalculated(i)};")
+            }
+            bfw.newLine()
+        }
+        bfw.close()
+    }
 
+
+    fun getLedInfo(potIndex: Int) = listOfLedInfo[potIndex]
+    fun getLedTimeInfo(potIndex: Int) = listOfTimeInfo[potIndex]
 
 
 }
@@ -169,7 +221,34 @@ data class LedInfo(
         }
         return string
     }
-    fun getRedLedPower(dayIndex: Int):Float = getRedPercentage(dayIndex).toFloat()/1000F*30F
-    fun getBlueLedPower(dayIndex: Int):Float = getBluePercentage(dayIndex).toFloat()/1000F*35F
+
+    fun getRedLedPower(dayIndex: Int): Float = getRedPercentage(dayIndex).toFloat() / 1000F * 30F
+    fun getBlueLedPower(dayIndex: Int): Float = getBluePercentage(dayIndex).toFloat() / 1000F * 35F
+}
+
+data class LedInfoTime(
+    private var timeInHours: ArrayList<Int> = ArrayList(),
+    private var timeInMinutes: ArrayList<Int> = ArrayList()
+) {
+    fun getTimeInHours(dayIndex: Int) = timeInHours[dayIndex]
+    fun getTimeInMinutes(dayIndex: Int) = timeInMinutes[dayIndex]
+    fun setTimeInHours(dayIndex: Int, value: Int) {
+        timeInHours[dayIndex] = value
+    }
+
+    fun setTimeInMinutes(dayIndex: Int, value: Int) {
+        timeInMinutes[dayIndex] = value
+    }
+
+    fun getTimeInMinutesCalculated(dayIndex: Int) =
+        timeInMinutes[dayIndex] + timeInHours[dayIndex] * 60
+
+    fun addTimeFromMinutes(value: Int) {
+        timeInHours.add(value / 60)
+        timeInMinutes.add(value % 60)
+        Log.i("App", "Groot")
+    }
+
 
 }
+
